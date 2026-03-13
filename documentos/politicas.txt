@@ -1,0 +1,119 @@
+POLÍTICAS GENERALES DE LA EMPRESA — UNIVERSIDAD CENFOTEC
+Versión 3.2 | Enero 2026
+=========================================================
+
+SECCIÓN 1: POLÍTICA DE USO ACEPTABLE DE TECNOLOGÍA
+
+1.1 Propósito y Alcance
+
+Esta política establece las normas y lineamientos para el uso responsable y seguro de todos los recursos tecnológicos provistos por la organización. Aplica a todos los colaboradores, contratistas, pasantes y cualquier tercero que tenga acceso a los sistemas de información de la empresa.
+
+El incumplimiento de estas políticas puede resultar en medidas disciplinarias que van desde una amonestación escrita hasta el despido justificado o la rescisión del contrato, según corresponda.
+
+1.2 Uso de Dispositivos Corporativos
+
+Los dispositivos corporativos —computadoras portátiles, teléfonos móviles, tabletas y equipos de escritorio— son propiedad de la empresa y deben utilizarse principalmente para actividades laborales.
+
+Se permite un uso personal razonable siempre que no interfiera con las responsabilidades laborales, no consuma recursos excesivos de red, no comprometa la seguridad de los sistemas y no genere conflictos de interés.
+
+Queda estrictamente prohibido instalar software no autorizado, deshabilitar herramientas de seguridad, acceder a contenido ilegal o inapropiado, y compartir credenciales de acceso con terceros.
+
+1.3 Contraseñas y Autenticación
+
+Todos los usuarios deben crear contraseñas robustas que contengan al menos doce caracteres, combinando letras mayúsculas, minúsculas, números y símbolos especiales. Las contraseñas deben cambiarse cada noventa días y no pueden reutilizarse durante los últimos doce ciclos.
+
+La autenticación de doble factor (2FA) es obligatoria para todos los accesos remotos, sistemas críticos y cuentas con privilegios administrativos. Se recomienda utilizar aplicaciones autenticadoras en lugar de SMS cuando sea posible.
+
+
+SECCIÓN 2: POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS
+
+2.1 Principios Fundamentales
+
+La empresa se compromete a proteger la privacidad y los datos personales de todos sus colaboradores, clientes y socios comerciales de conformidad con la Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales (Ley 8968) de Costa Rica y demás normativa aplicable.
+
+Los datos personales se recopilarán únicamente para fines legítimos y específicos, se procesarán de manera lícita y transparente, se mantendrán exactos y actualizados, y se conservarán solo el tiempo necesario para los fines para los que fueron recopilados.
+
+2.2 Clasificación de Datos
+
+Los datos se clasifican en cuatro categorías según su nivel de sensibilidad:
+
+Datos Públicos: Información que puede divulgarse libremente sin causar daño. Incluye comunicados de prensa, información de productos disponibles al público y datos estadísticos agregados sin identificadores personales.
+
+Datos Internos: Información de uso interno que no debe compartirse fuera de la organización sin autorización. Incluye procedimientos operativos, directorios internos, políticas internas y comunicaciones entre departamentos.
+
+Datos Confidenciales: Información sensible cuya divulgación podría causar daño significativo. Incluye contratos comerciales, estrategias de negocio, información financiera detallada y datos personales de colaboradores.
+
+Datos Restringidos: Información de máxima sensibilidad que requiere controles estrictos. Incluye credenciales de acceso, claves criptográficas, información médica y datos bancarios.
+
+2.3 Transferencia y Almacenamiento de Datos
+
+Toda transferencia de datos confidenciales o restringidos debe realizarse a través de canales cifrados y previamente autorizados. El uso de servicios de almacenamiento en la nube de terceros requiere aprobación explícita del Departamento de Seguridad de la Información.
+
+Los datos almacenados en dispositivos móviles deben estar cifrados mediante las herramientas aprobadas por la empresa. En caso de pérdida o robo del dispositivo, el incidente debe reportarse dentro de las siguientes dos horas al equipo de seguridad.
+
+
+SECCIÓN 3: POLÍTICA DE TELETRABAJO Y TRABAJO REMOTO
+
+3.1 Elegibilidad y Condiciones
+
+El teletrabajo es una modalidad de trabajo que permite al colaborador desempeñar sus funciones desde un lugar distinto a las instalaciones de la empresa, utilizando tecnologías de la información y comunicación.
+
+Para ser elegible al teletrabajo, el colaborador debe haber superado el período de prueba, contar con evaluación de desempeño satisfactoria en el último período, tener un puesto cuyas funciones sean ejecutables de manera remota y disponer de un espacio adecuado con conectividad a internet estable.
+
+3.2 Obligaciones del Colaborador en Modalidad Remota
+
+El colaborador que trabaje de forma remota debe mantener la misma disponibilidad y productividad que en las instalaciones físicas, participar puntualmente en reuniones virtuales, utilizar exclusivamente los equipos y conexiones autorizadas por la empresa, y guardar confidencialidad sobre la información a la que tenga acceso.
+
+El espacio de trabajo remoto debe contar con una conexión a internet de al menos 10 Mbps de velocidad de bajada, garantizar privacidad visual y auditiva durante las videollamadas, y contar con un escritorio o área de trabajo ergonómica que cumpla con los lineamientos de salud ocupacional.
+
+3.3 Seguridad en el Trabajo Remoto
+
+Cuando se trabaje desde redes Wi-Fi públicas o no corporativas, es obligatorio el uso de la VPN corporativa. Las sesiones de trabajo deben bloquearse automáticamente tras cinco minutos de inactividad.
+
+Queda prohibido trabajar desde establecimientos públicos con acceso abierto a pantallas, como cafeterías o espacios co-working sin separación física, cuando se esté manejando información de carácter confidencial o restringido.
+
+
+SECCIÓN 4: POLÍTICA DE CAPACITACIÓN Y DESARROLLO PROFESIONAL
+
+4.1 Programa Anual de Formación
+
+La empresa garantiza a cada colaborador un mínimo de cuarenta horas de capacitación al año relacionadas con sus funciones y las competencias requeridas por la organización. Este tiempo incluye cursos presenciales, virtuales, talleres, seminarios y programas de certificación.
+
+Los colaboradores que deseen tomar formaciones adicionales fuera del programa anual pueden solicitar apoyo económico parcial o total mediante el proceso de solicitud de becas internas, siempre que la formación esté alineada con las necesidades del negocio.
+
+4.2 Plataformas de Aprendizaje Autorizadas
+
+La empresa tiene contratos activos con las siguientes plataformas de aprendizaje: Coursera for Business, LinkedIn Learning, Udemy Business y Microsoft Learn. Los colaboradores pueden acceder a estos recursos sin costo adicional utilizando sus credenciales corporativas.
+
+El acceso a certificaciones de proveedores como AWS, Google Cloud, Microsoft Azure y Cisco está disponible para los roles técnicos que lo requieran, previa aprobación del jefe directo y disponibilidad de presupuesto departamental.
+
+4.3 Evaluación y Seguimiento del Aprendizaje
+
+Cada colaborador debe registrar sus actividades de formación en el sistema de gestión del aprendizaje (LMS) corporativo. El departamento de Recursos Humanos realizará un seguimiento trimestral del cumplimiento y generará reportes para la Dirección General.
+
+Los colaboradores que no completen el mínimo de horas de capacitación requeridas sin justificación válida recibirán una notificación formal y deberán presentar un plan de recuperación en el siguiente período.
+
+
+SECCIÓN 5: POLÍTICA DE INCIDENTES DE SEGURIDAD
+
+5.1 Definición y Clasificación de Incidentes
+
+Un incidente de seguridad es cualquier evento que comprometa o tenga el potencial de comprometer la confidencialidad, integridad o disponibilidad de los sistemas y datos de la empresa.
+
+Los incidentes se clasifican en tres niveles de severidad:
+
+Nivel 1 — Crítico: Incidentes que causan interrupción severa de servicios críticos, pérdida masiva de datos, acceso no autorizado a sistemas de nivel restringido o cualquier situación que requiera notificación regulatoria inmediata. Tiempo de respuesta: menos de una hora.
+
+Nivel 2 — Alto: Incidentes que afectan parcialmente servicios importantes, involucran pérdida o exposición de datos confidenciales, o representan amenazas activas contenidas. Tiempo de respuesta: menos de cuatro horas.
+
+Nivel 3 — Medio/Bajo: Incidentes menores con impacto limitado, intentos fallidos de acceso no autorizado, o violaciones de política sin consecuencias inmediatas. Tiempo de respuesta: menos de veinticuatro horas.
+
+5.2 Proceso de Reporte
+
+Todo colaborador que detecte o sospeche de un incidente de seguridad debe reportarlo inmediatamente al equipo de seguridad a través del correo seguridad@empresa.com o al número de emergencias interno. No deben intentarse investigaciones independientes que puedan alterar evidencia forense.
+
+El reporte debe incluir la fecha y hora en que se detectó el incidente, una descripción de lo observado, los sistemas o datos potencialmente afectados, y las acciones tomadas hasta el momento del reporte.
+
+5.3 Respuesta y Recuperación
+
+El equipo de seguridad seguirá el procedimiento estándar de respuesta a incidentes: contención, erradicación, recuperación y lecciones aprendidas. Todos los incidentes de nivel 1 y 2 deben documentarse en el sistema de tickets de seguridad y contar con un informe post-incidente dentro de los cinco días hábiles siguientes a su resolución.
