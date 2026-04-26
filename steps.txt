@@ -3,3 +3,5 @@ C:\Users\Vargas\pyver\python3129\python -m venv .venv
 .venv\Scripts\activate
 
 pip install scikit-learn pandas numpy matplotlib seaborn
+
+python miniproyecto_3_final.py
