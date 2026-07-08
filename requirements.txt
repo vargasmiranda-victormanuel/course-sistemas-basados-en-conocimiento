@@ -5,3 +5,5 @@ matplotlib
 seaborn
 shap
 pgmpy
+xgboost
+jinja2
