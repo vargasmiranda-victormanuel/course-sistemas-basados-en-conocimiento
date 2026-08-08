@@ -1,0 +1,77 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
+
+# ==========================================
+# 1. Cargar y Preparar los Datos
+# ==========================================
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# División de datos (70% entrenamiento, 30% prueba)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+# ==========================================
+# 2. Inicializar los Modelos
+# ==========================================
+# KNN: Mirará a los 3 vecinos más cercanos para tomar una decisión
+modelo_knn = KNeighborsClassifier(n_neighbors=3)
+
+# SVM: Usaremos un kernel lineal para buscar fronteras rectas entre las clases
+modelo_svm = SVC(kernel='linear', random_state=42)
+
+# ==========================================
+# 3. Entrenamiento (Fit)
+# ==========================================
+modelo_knn.fit(X_train, y_train)
+modelo_svm.fit(X_train, y_train)
+
+# ==========================================
+# 4. Predicción
+# ==========================================
+pred_knn = modelo_knn.predict(X_test)
+pred_svm = modelo_svm.predict(X_test)
+
+# ==========================================
+# 5. Evaluación y Comparación
+# ==========================================
+def evaluar_modelo(nombre_modelo, y_real, y_pred):
+    acc = accuracy_score(y_real, y_pred)
+    # Recall macro para tratar todas las clases por igual
+    rec = recall_score(y_real, y_pred, average='macro') 
+    print(f"--- {nombre_modelo} ---")
+    print(f"Accuracy : {acc:.4f} ({acc * 100:.1f}%)")
+    print(f"Recall   : {rec:.4f} ({rec * 100:.1f}%)\n")
+
+print("COMPARACIÓN DE MÉTRICAS:\n")
+evaluar_modelo("K-Nearest Neighbors (KNN)", y_test, pred_knn)
+evaluar_modelo("Support Vector Machine (SVM)", y_test, pred_svm)
+
+# ==========================================
+# 6. Visualización de Matrices de Confusión
+# ==========================================
+# Configuramos la figura para mostrar dos gráficos uno al lado del otro
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+# Matriz para KNN
+sns.heatmap(confusion_matrix(y_test, pred_knn), annot=True, cmap='Greens', fmt='g', 
+            xticklabels=iris.target_names, yticklabels=iris.target_names, ax=ax1)
+ax1.set_title('Matriz de Confusión - KNN')
+ax1.set_xlabel('Etiqueta Predicha')
+ax1.set_ylabel('Etiqueta Real')
+
+# Matriz para SVM
+sns.heatmap(confusion_matrix(y_test, pred_svm), annot=True, cmap='Purples', fmt='g', 
+            xticklabels=iris.target_names, yticklabels=iris.target_names, ax=ax2)
+ax2.set_title('Matriz de Confusión - SVM')
+ax2.set_xlabel('Etiqueta Predicha')
+ax2.set_ylabel('Etiqueta Real')
+
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,96 @@
+import pandas as pd
+from sklearn.datasets import fetch_california_housing, load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score, recall_score, f1_score
+
+# --- Importación de todos los modelos basados en árboles ---
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.ensemble import (
+    RandomForestRegressor, RandomForestClassifier,
+    ExtraTreesRegressor, ExtraTreesClassifier,
+    GradientBoostingRegressor, GradientBoostingClassifier,
+    HistGradientBoostingRegressor, HistGradientBoostingClassifier,
+    AdaBoostRegressor, AdaBoostClassifier
+)
+
+# ==========================================
+# PARTE 1: REGRESIÓN (Predicción de precios continuos)
+# ==========================================
+print("=== EVALUACIÓN DE MODELOS DE REGRESIÓN ===")
+
+# 1. Cargar datos de regresión
+california = fetch_california_housing()
+X_reg, y_reg = california.data, california.target
+X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
+    X_reg, y_reg, test_size=0.2, random_state=42
+)
+
+# 2. Definir los modelos de regresión
+modelos_regresion = {
+    "Decision Tree": DecisionTreeRegressor(random_state=42),
+    "Random Forest": RandomForestRegressor(n_estimators=50, random_state=42),
+    "Extra Trees": ExtraTreesRegressor(n_estimators=50, random_state=42),
+    "AdaBoost": AdaBoostRegressor(n_estimators=50, random_state=42),
+    "Gradient Boosting": GradientBoostingRegressor(n_estimators=50, random_state=42),
+    "HistGradientBoosting": HistGradientBoostingRegressor(random_state=42)
+}
+
+# 3. Entrenar y evaluar
+resultados_reg = []
+for nombre, modelo in modelos_regresion.items():
+    modelo.fit(X_train_reg, y_train_reg)
+    y_pred_reg = modelo.predict(X_test_reg)
+    
+    mse = mean_squared_error(y_test_reg, y_pred_reg)
+    mae = mean_absolute_error(y_test_reg, y_pred_reg)
+    
+    resultados_reg.append({"Modelo": nombre, "MSE": mse, "MAE": mae})
+
+# Mostrar resultados ordenados por MAE (menor es mejor)
+df_reg = pd.DataFrame(resultados_reg).sort_values(by="MAE")
+print(df_reg.to_string(index=False))
+print("\n" + "="*40 + "\n")
+
+
+# ==========================================
+# PARTE 2: CLASIFICACIÓN (Predicción de categorías binarias)
+# ==========================================
+print("=== EVALUACIÓN DE MODELOS DE CLASIFICACIÓN ===")
+
+# 1. Cargar datos de clasificación (Tumores malignos vs benignos)
+cancer = load_breast_cancer()
+X_clf, y_clf = cancer.data, cancer.target
+X_train_clf, X_test_clf, y_train_clf, y_test_clf = train_test_split(
+    X_clf, y_clf, test_size=0.2, random_state=42, stratify=y_clf
+)
+
+# 2. Definir los modelos de clasificación
+modelos_clasificacion = {
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Random Forest": RandomForestClassifier(n_estimators=50, random_state=42),
+    "Extra Trees": ExtraTreesClassifier(n_estimators=50, random_state=42),
+    "AdaBoost": AdaBoostClassifier(n_estimators=50, random_state=42),
+    "Gradient Boosting": GradientBoostingClassifier(n_estimators=50, random_state=42),
+    "HistGradientBoosting": HistGradientBoostingClassifier(random_state=42)
+}
+
+# 3. Entrenar y evaluar
+resultados_clf = []
+for nombre, modelo in modelos_clasificacion.items():
+    modelo.fit(X_train_clf, y_train_clf)
+    y_pred_clf = modelo.predict(X_test_clf)
+    
+    acc = accuracy_score(y_test_clf, y_pred_clf)
+    rec = recall_score(y_test_clf, y_pred_clf) # average='binary' por defecto
+    f1 = f1_score(y_test_clf, y_pred_clf)      # average='binary' por defecto
+    
+    resultados_clf.append({
+        "Modelo": nombre, 
+        "Accuracy": acc, 
+        "Recall": rec, 
+        "F1-Score": f1
+    })
+
+# Mostrar resultados ordenados por F1-Score (mayor es mejor)
+df_clf = pd.DataFrame(resultados_clf).sort_values(by="F1-Score", ascending=False)
+print(df_clf.to_string(index=False))

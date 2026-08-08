@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generalization, Regularization, and Knowledge Retention</title>
+
+<!-- MathJax Configuration and Script for LaTeX rendering -->
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+    /* =========================================================
+       PAGE AND PRINT CONFIGURATION
+       ========================================================= */
+    @page {
+        size: Letter portrait;
+        margin: 0.65in;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        background-color: #f4f4f4;
+    }
+
+    /* Base document styling */
+    body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 10pt;
+        line-height: 1.2;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Paper wrapper used for the browser preview */
+    .paper-container {
+        width: 8.5in;
+        max-width: 100%;
+        min-height: 11in;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 0.75in;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Single-column header for title and authors */
+    .header-section {
+        text-align: center;
+        margin-bottom: 30px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .paper-title {
+        font-size: 18pt;
+        font-family: Helvetica, Arial, sans-serif;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        line-height: 1.1;
+    }
+
+    .author-name {
+        font-size: 12pt;
+        margin: 0;
+    }
+
+    .author-affiliation {
+        font-size: 10pt;
+        margin: 0;
+    }
+
+    /* Two-column layout for the main body */
+    .two-column-layout {
+        column-count: 2;
+        column-gap: 0.33in;
+        column-fill: balance;
+        text-align: justify;
+    }
+
+    /* Heading styling */
+    h1.section-title {
+        font-size: 10pt;
+        font-weight: bold;
+        text-align: left;
+        text-transform: uppercase;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        break-after: avoid;
+        page-break-after: avoid;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    h2.subsection-title {
+        font-size: 10pt;
+        font-weight: bold;
+        font-style: italic;
+        text-align: left;
+        text-transform: none;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        break-after: avoid;
+        page-break-after: avoid;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    p {
+        margin-top: 0;
+        margin-bottom: 10px;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* List styling */
+    ul,
+    ol {
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-left: 20px;
+    }
+
+    li {
+        margin-bottom: 8px;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* Math block styling */
+    .math-block {
+        max-width: 100%;
+        text-align: center;
+        margin: 10px 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .math-block mjx-container[display="true"] {
+        max-width: 100%;
+        margin: 0 !important;
+    }
+
+    /* First-page copyright notice block */
+    .copyright-notice {
+        font-size: 8pt;
+        border-top: 1px solid #000;
+        padding-top: 5px;
+        margin-top: 20px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* References styling with hanging indentation */
+    .reference-list {
+        font-size: 9pt;
+    }
+
+    .reference-item {
+        padding-left: 15px;
+        text-indent: -15px;
+        margin-bottom: 8px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* Optional page-control utility classes */
+    .page-break-before {
+        break-before: page;
+        page-break-before: always;
+    }
+
+    .page-break-after {
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .keep-together,
+    .keep-with-next {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* Browser-only button for opening the print/PDF dialog */
+    .print-button {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 1000;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 9px 14px;
+        background: #fff;
+        color: #111;
+        font-family: Arial, sans-serif;
+        font-size: 10pt;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .print-button:hover {
+        background: #f0f0f0;
+    }
+
+    /* =========================================================
+       PRINT / PDF OUTPUT
+       The @page margin becomes the only page margin. The preview
+       container padding and shadow are removed to avoid double margins.
+       ========================================================= */
+    @media print {
+        html,
+        body {
+            width: auto;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        .print-button {
+            display: none !important;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .paper-container {
+            width: auto;
+            max-width: none;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .header-section {
+            margin-bottom: 24px;
+        }
+
+        .two-column-layout {
+            column-count: 2;
+            column-gap: 0.33in;
+            column-fill: auto;
+        }
+
+        h1.section-title,
+        h2.subsection-title {
+            break-after: avoid;
+            page-break-after: avoid;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        p {
+            orphans: 3;
+            widows: 3;
+        }
+
+        li,
+        .math-block,
+        figure,
+        table,
+        pre,
+        blockquote,
+        .reference-item {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .math-block {
+            overflow: visible;
+        }
+
+        .math-block mjx-container[display="true"] {
+            max-width: 100%;
+            font-size: 88% !important;
+            overflow: visible;
+        }
+
+        a[href]::after {
+            content: none;
+        }
+    }
+
+    /* Responsive browser preview; PDF output remains two-column */
+    @media screen and (max-width: 560px) {
+        body {
+            padding: 0;
+        }
+
+        .paper-container {
+            width: 100%;
+            min-height: 0;
+            padding: 28px;
+            box-shadow: none;
+        }
+
+        .two-column-layout {
+            column-count: 1;
+        }
+    }
+</style>
+</head>
+<body>
+
+<button class="print-button" type="button" onclick="window.print()">Save / Print as PDF</button>
+
+<!--
+    PDF conversion note:
+    Use a Chromium-based print engine and enable preferCSSPageSize so that
+    the Letter page size and margins declared in @page are respected.
+-->
+
+<div class="paper-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="paper-title">Generalization, Regularization, and Knowledge Retention in Neural Network Architectures</div>
+        <p class="author-name">Victor Vargas Miranda</p>
+        <p class="author-affiliation">UCENFOTEC Costa Rica<br>vvargasm@ucenfotec.ac.cr</p>
+    </div>
+
+    <!-- Main Two-Column Body -->
+    <div class="two-column-layout">
+        
+        <h1 class="section-title">Abstract</h1>
+        <p>This investigation studies generalization, regularization and catastrophic forgetting in neural networks. It also reviews how transfer learning can reuse previous knowledge and proposes an evaluation pipeline to detect overfitting and knowledge loss.</p>
+
+        <h1 class="section-title">1. Introduction</h1>
+        <p>Neural networks can learn complex tasks, but they may overfit the training data or forget previous knowledge when learning a new task. Generalization and regularization help control these problems. Transfer learning reuses knowledge from a pre-trained model, but fine-tuning can modify important weights. This investigation reviews these concepts and proposes a simple pipeline to evaluate new-task learning, generalization and previous-task retention.</p>
+
+        <h1 class="section-title">2. Generalization and Regularization Mechanisms</h1>
+        
+        <h2 class="subsection-title">2.1 Theoretical Framework: Risk and Generalization</h2>
+        <p>Generalization aims to minimize the expected risk ($L$), which is the loss over the unknown ground truth data distribution $P$. Because $P$ is unknown, we minimize the empirical risk ($\hat{L}$) on a finite training set $D$. Regularization modifies this objective to bridge the gap between these two risks:</p>
+        <div class="math-block">$$\arg\min \frac{1}{\vert{}D\vert{}} \sum_{(x_i, t_i) \in D} E(f_w(x_i), t_i) + R(...)$$</div>
+        <p>where $E$ is the error function and $R$ is the regularization term.[1]</p>
+
+        <h2 class="subsection-title">2.2 Weight Penalties: L1 (Lasso) and L2 (Weight Decay)</h2>
+        <p>Weight penalties are loss function modifications that add a regularization term $R(w)$ to the empirical risk objective. This term is independent of the targets $t$ and is used to provide inductive bias by penalizing complex models.</p>
+
+        <p><strong>L1 Regularization (Lasso)</strong></p>
+        <p>L1 regularization, often referred to as Lasso (Least Absolute Shrinkage and Selection Operator), adds the L1 norm of the weights as a penalty.</p>
+        <ul>
+            <li><strong>Mathematical Objective:</strong> $R(w) = \lambda \Vert w \Vert_1 = \lambda \sum_i \vert w_i \vert$</li>
+            <li><strong>Mechanism:</strong> Because the absolute value function has a constant gradient (except at zero), the penalty exerts a constant pressure on weights toward zero regardless of their magnitude.[1]</li>
+            <li><strong>Effect on Topology:</strong> Lasso is known for promoting sparsity. It often drives the weights of less important features to exactly zero, effectively performing automatic feature selection. This produces a more interpretable and compact model.</li>
+        </ul>
+
+        <p><strong>L2 Regularization (Weight Decay)</strong></p>
+        <p>L2 regularization, or Weight Decay, adds the squared L2 norm of the weights to the loss function.</p>
+        <ul>
+            <li><strong>Mathematical Objective:</strong> $R(w) = \frac{\lambda}{2} \Vert w \Vert_2^2 = \frac{\lambda}{2} \sum_i w_i^2$</li>
+            <li><strong>Mechanism:</strong> The penalty is proportional to the square of the weight values. This means larger weights are penalized much more heavily than smaller ones, favoring a "simpler" model where the mapping is smooth.[1]</li>
+            <li><strong>Bayesian Interpretation:</strong> L2 regularization corresponds to assuming a Gaussian prior on the weights: $p(w) = \mathcal{N}(w \mid 0, \lambda^{-1}I)$.</li>
+            <li><strong>Effect on Optimization:</strong> It prevents any single weight from becoming too "extreme" or dominant. In the context of deep learning, weight decay is widely used but is sometimes found to be neither necessary nor sufficient for generalization, as large networks can still perfectly fit (memorize) random data even when L2 is active.</li>
+        </ul>
+
+        <h2 class="subsection-title">2.3 Dropout</h2>
+        <p>Dropout is primarily a network topology modification that acts stochastically during training.</p>
+        <ul>
+            <li><strong>Mechanism:</strong> It randomly "drops out" units (and their connections) with probability $1-p$, creating a "thinned" network for each training case. This prevents units from co-adapting—where a neuron only performs well in the presence of specific other neurons.[3]</li>
+            <li><strong>Mathematical Analysis:</strong> The feed-forward operation for a layer $l$ becomes:
+                <div class="math-block">$$r^{(l)} \sim \text{Bernoulli}(p)$$</div>
+                <div class="math-block">$$\tilde{y}^{(l)} = r^{(l)} * y^{(l)} \quad \text{(element-wise product)}$$</div>
+                <div class="math-block">$$z_i^{(l+1)} = w_i^{(l+1)} \tilde{y}^{(l)} + b_i^{(l+1)}$$</div>
+            </li>
+            <li><strong>Topology Modification:</strong> Training with dropout is equivalent to training an ensemble of $2^n$ thinned networks with extensive weight sharing. At test time, the weights are scaled ($W_{\text{test}} = pW$) to approximate the geometric mean of the predictions of all these thinned models.</li>
+            <li><strong>Loss Interpretation:</strong> For linear regression, marginalizing dropout noise is mathematically equivalent to a modified form of Ridge Regression (L2), where the penalty scales the weight cost by the standard deviation of each data dimension.</li>
+        </ul>
+
+        <h2 class="subsection-title">2.4 Data Augmentation</h2>
+        <p>Data augmentation is a modification via the training data that transforms the original dataset $D$ into an augmented set $D_R$.</p>
+        <ul>
+            <li><strong>Mechanism:</strong> It uses stochastic transformations ($\tau_\theta$) to generate new samples, effectively expanding the training set size.[1]</li>
+            <li><strong>Mathematical Analysis:</strong> It replaces the empirical risk with a data-augmented loss ($\hat{L}_A$) that integrates over the distribution of transformation parameters $p(\theta)$:
+                <div class="math-block">$$\hat{L}_A = \frac{1}{\vert{}D\vert{}} \sum_{(x_i, t_i) \in D} \mathbb{E}_\theta [\ell(\tau_\theta(x_i), t_i)]$$</div>
+            </li>
+            <li><strong>Effect:</strong> This process creates an augmented distribution $Q$. The closer $Q$ is to the ground truth distribution $P$, the more effectively the augmented loss simulates the true expected risk. Data augmentation is often more powerful than loss-based regularizers because it can enforce complex symmetries (like rotation or translation invariance) directly through the data.</li>
+        </ul>
+
+        <h2 class="subsection-title">2.5 Early Stopping</h2>
+        <p>Early stopping is a modification of the optimization procedure, specifically a termination method.</p>
+        <ul>
+            <li><strong>Mechanism:</strong> It halts training when performance on a separate validation set begins to decline, even if the training error is still decreasing.</li>
+            <li><strong>Theory:</strong> It exploits the fact that networks typically learn general, useful concepts before they begin to "memorize" the specific noise in the training set.[1]</li>
+            <li><strong>Implicit Regularization:</strong> It is often viewed as a form of implicit regularization. In linear models, for example, shorter training times via SGD act as a regularizer by converging to the solution with the smallest L2 norm.[2]</li>
+        </ul>
+
+        <h2 class="subsection-title">2.6 Modern Synthesis: Sharpness and Geometry</h2>
+        <p>Recent research (Source 3) suggests that generalization is tied to the geometry of the loss landscape.</p>
+        <ul>
+            <li><strong>Sharpness-Aware Minimization (SAM):</strong> This technique modifies the optimization objective to seek flatter minima. Instead of just minimizing the loss $L_S(w)$, it solves a min-max problem to find a neighborhood with uniformly low loss[4]:
+                <div class="math-block">$$\min_w \max_{\Vert{}\epsilon\Vert{}_p \leq \rho} L_S(w+\epsilon)$$</div>
+                This approach directly addresses the problem where standard networks have the capacity to fit even random labels perfectly (zero training error) but fail to generalize. By explicitly penalizing "sharp" minima—where small parameter changes lead to large loss increases—SAM improves generalization across diverse tasks.
+            </li>
+        </ul>
+
+        <h1 class="section-title">3. The Problem of Catastrophic Forgetting</h1>
+        <p>Catastrophic forgetting (or catastrophic interference) is the phenomenon where a neural network abruptly loses the knowledge of previously learned tasks as it incorporates information relevant to a new task. This occurs because the network weights that were optimized and vital for a previous task (Task A) are drastically overwritten to meet the objectives of a current task (Task B).[5]</p>
+
+        <h2 class="subsection-title">3.1. The Mechanics of Weight Overwriting</h2>
+        <p>The mathematical and physiological roots of this problem lie in how artificial systems manage plasticity compared to biological ones.</p>
+
+        <p><strong>Probabilistic Framework:</strong> From a Bayesian perspective, learning involves finding the most probable parameter values ($\theta$) given training data ($D$). For two sequential tasks, $D_A$ and $D_B$, the posterior probability is:</p>
+        <div class="math-block">
+            $$\log p(\theta \mid D)=\log p(D_B \mid \theta)+\log p(\theta \mid D_A)-\log p(D_B)$$
+        </div>
+        <p>Standard training (SGD) ignores the term representing previous knowledge ($\log p(\theta \mid D_A)$), moving the parameters toward a new local minimum that minimizes Task B's loss alone. Because networks are over-parameterized, there are many configurations that result in high performance; however, without constraints, the parameters drift out of the &quot;low error&quot; region for Task A.[5]</p>
+
+        <p><strong>Physiological Contrast:</strong> The mammalian brain avoids this through synaptic consolidation. When a new skill is learned, a proportion of excitatory synapses are strengthened&mdash;manifesting as enlarged dendritic spines&mdash;and rendered less plastic. These stable synapses persist even as the brain learns new tasks, providing a mechanism for long-term retention that standard neural networks lack.[5]</p>
+
+        <h2 class="subsection-title">3.2. Regularization-based Mitigation: Elastic Weight Consolidation (EWC)</h2>
+        <p>EWC mimics synaptic consolidation by slowing down learning on weights identified as important for previous tasks.</p>
+
+        <p><strong>Mechanism:</strong> It implements a quadratic penalty (acting like a spring) that anchors parameters to their old values. The importance of each weight is determined by the diagonal of the Fisher information matrix ($F$), which is equivalent to the second derivative of the loss near a minimum.[5]</p>
+
+        <p><strong>The EWC Loss Function:</strong></p>
+        <div class="math-block">
+            $$L(\theta)=L_B(\theta)+\sum_i \frac{\lambda}{2}F_i\left(\theta_i-\theta_{A,i}^{*}\right)^2$$
+        </div>
+        <p>Here, $\lambda$ sets the importance of the old task relative to the new one, and $F_i$ provides the &quot;stiffness&quot; of the spring for parameter $i$.</p>
+
+        <h2 class="subsection-title">3.3. Replay Buffers and Rehearsal Strategies</h2>
+        <p>Replay involves complementing new task data with representations of old tasks to &quot;remind&quot; the network of what it has already learned.[6]</p>
+
+        <ul>
+            <li><strong>Exact Replay (Exemplars):</strong> Strategies like iCaRL store a small subset of actual images (exemplars) from old classes. It uses a herding algorithm to select exemplars whose average feature vector best approximates the true class mean. Classification is then performed using a nearest-mean-of-exemplars rule in the feature space rather than raw network outputs.[7]</li>
+            <li><strong>Generative Replay:</strong> Instead of storing raw data (which may be limited by memory or privacy), Deep Generative Replay (DGR) trains a separate generative model&mdash;such as a Variational Autoencoder (VAE)&mdash;to produce &quot;pseudo-data&quot; representing the distribution of previous tasks.[6]</li>
+            <li><strong>Response Preservation (Distillation):</strong> Learning without Forgetting (LwF) uses the new task images to record &quot;responses&quot; from the original network for old tasks. It employs a Knowledge Distillation loss to ensure the new network's outputs for old tasks remain similar to the original ones, effectively using the new data as a proxy for the old.[8]</li>
+        </ul>
+
+        <h2 class="subsection-title">3.4. Task-Specific and Architectural Strategies</h2>
+        <p>These approaches prevent forgetting by isolating task-specific information or growing the network's capacity.</p>
+
+        <p><strong>Context-dependent Gating (XdG):</strong> For each task, a random subset of units in the hidden layers is gated (set to zero). This forces the network to use different &quot;sub-networks&quot; for different tasks, significantly reducing the overlap and subsequent overwriting of critical weights.[6]</p>
+
+        <p><strong>Architectural Modification:</strong></p>
+        <ul>
+            <li><strong>Feature Extraction:</strong> The shared parameters ($\theta_s$) are frozen, and only new task-specific layers ($\theta_n$) are trained. While this prevents forgetting, the shared features cannot adapt to the new task.[8]</li>
+            <li><strong>Progressive Neural Networks:</strong> This strategy grows the network by adding new &quot;columns&quot; for every task, keeping the old weights entirely untouched.</li>
+            <li><strong>Network Expansion:</strong> Adding nodes to existing layers (similar to Net2Net) allows for new-task-specific information in early layers while preserving the original structure.[8]</li>
+        </ul>
+
+        <h2 class="subsection-title">3.5. Evaluation Context: The Three Scenarios</h2>
+        <p>The effectiveness of these strategies depends heavily on the continual learning scenario:[6]</p>
+        <ul>
+            <li><strong>Task-IL:</strong> Task identity is provided at test time; models can use task-specific components.</li>
+            <li><strong>Domain-IL:</strong> Task identity is not provided, but the model only needs to solve the task at hand.</li>
+            <li><strong>Class-IL:</strong> The model must solve the task and infer the task identity (e.g., which class among all seen so far). Regularization-based methods like EWC often fail in Class-IL, where replay-based approaches are currently considered necessary for acceptable performance.</li>
+        </ul>
+
+        <h1 class="section-title">4. Transfer Learning as an Engineering Strategy</h1>
+        <p>The use of pre-trained models in transfer learning is driven by the hierarchical nature of deep neural networks, where knowledge gained from a data-rich source domain is repurposed for a target domain to overcome data scarcity and reduce training time.[9]</p>
+
+        <h2 class="subsection-title">4.1. Feature Extraction and Fine-Tuning</h2>
+        <p>Transfer learning typically involves two main strategies: feature extraction and fine-tuning.</p>
+
+        <ul>
+            <li><strong>Feature Extraction:</strong> This approach treats the front layers of a pre-trained network as a versatile feature extractor. The early layers identify high-level, general features of the data, while subsequent layers interpret this information to make specific decisions. In practice, the first n layers are copied from a base network and &quot;frozen,&quot; meaning their connection parameters are not updated during training on the target task.[10]</li>
+            <li><strong>Fine-Tuning:</strong> In this strategy, the copied layers are not frozen but are allowed to be updated through backpropagation on the target dataset. Fine-tuning can significantly improve performance, especially if the target dataset is large enough to avoid overfitting. Interestingly, initializing a network with transferred features can boost generalization performance even after extensive fine-tuning, an effect that lingers far longer than expected.[10]</li>
+        </ul>
+
+        <h2 class="subsection-title">4.2. Layer Transferability: General vs. Specific</h2>
+        <p>A critical discussion in transfer learning is determining which layers are transferable and where the transition from general to specific knowledge occurs.</p>
+
+        <ul>
+            <li><strong>Generality of Early Layers:</strong> Early layers (such as the first and second layers in convolutional neural networks) tend to learn general features&mdash;like Gabor filters or color blobs in image tasks&mdash;that are applicable to many datasets and tasks regardless of the specific cost function used. These layers transfer almost perfectly between even dissimilar tasks.</li>
+            <li><strong>Specificity of Deeper Layers:</strong> As one moves toward the output layer, features become increasingly specific to the original task. For example, in classification, the last-layer units are specialized to the particular classes of the source dataset.</li>
+            <li><strong>Barriers to Transferability:</strong> Beyond representation specificity, transferability is hindered by fragile co-adaptation. This refers to the complex ways neurons on neighboring layers interact; when a network is &quot;split&quot; by freezing some layers and retraining others, the upper layers may fail to rediscover the necessary interactions with the frozen lower layers. This optimization difficulty is often most pronounced in the middle layers of a network.[10]</li>
+        </ul>
+
+        <h2 class="subsection-title">4.3. Transfer Learning Architectures</h2>
+        <p>Deep transfer learning can be categorized into four primary architectural techniques:</p>
+
+        <ol>
+            <li><strong>Network-based:</strong> This is the most common form, involving the reuse of partial network structures and parameters pre-trained in a source domain. It assumes that the front-end features are versatile across domains.</li>
+            <li><strong>Mapping-based:</strong> This architecture maps instances from both the source and target domains into a new data space. The goal is to make the distributions of the two domains more similar, allowing a single deep network to process both effectively.</li>
+            <li><strong>Adversarial-based:</strong> Inspired by GANs, this approach uses an adversarial layer to find representations that are discriminative for the main task but indiscriminate between the source and target domains.</li>
+            <li><strong>Instances-based:</strong> This technique uses specific strategies to re-weight instances in the source domain, selecting those most similar to the target domain to supplement the training set.[9]</li>
+        </ol>
+
+        <h2 class="subsection-title">4.4. Modern Efficient Architectures: LoRA</h2>
+        <p>In the context of Large Language Models (LLMs), full fine-tuning is often prohibitively expensive. Low-Rank Adaptation (LoRA) is a modern architecture that freezes the pre-trained weights and injects trainable rank decomposition matrices into the Transformer layers. This reduces the number of trainable parameters by up to 10,000 times. Unlike other adapter methods, LoRA introduces no additional inference latency because the low-rank matrices can be merged with the original weights during deployment. Research suggests that LoRA works by amplifying specific feature directions that were learned during pre-training but not emphasized in the original general model.[11]</p>
+
+
+        <h1 class="section-title">5. Pipeline Proposal and Predictive Evaluation</h1>
+
+        <p>The purpose of this evaluation pipeline is to check three basic results when transfer learning is applied:</p>
+
+        <ul>
+            <li>The model learns the new task.</li>
+            <li>The model does not overfit the new training data.</li>
+            <li>The model does not lose too much knowledge from the previous task.</li>
+        </ul>
+
+        <p>The pipeline should first compare two configurations already described in the investigation:</p>
+
+        <ol>
+            <li><strong>Feature extraction:</strong> the transferred layers remain frozen.</li>
+            <li><strong>Fine-tuning:</strong> the transferred layers are allowed to change during training.</li>
+        </ol>
+
+        <p>Feature extraction is used as the basic comparison because the original transferred layers are not modified. Fine-tuning can adapt better to the new task, but it can also produce overfitting or catastrophic forgetting.</p>
+
+        <h2 class="subsection-title">5.1 Evaluation Metrics</h2>
+
+        <p>The main measurements should be recorded after every training epoch:</p>
+
+        <ul>
+            <li>Training loss of the new task.</li>
+            <li>Validation loss of the new task.</li>
+            <li>Validation loss of the previous task.</li>
+            <li>Difference between training and validation loss.</li>
+            <li>Change in the previous-task validation loss.</li>
+        </ul>
+
+        <p>Loss is selected as the main metric because the investigation explains learning, generalization, early stopping and catastrophic forgetting using training, validation and task loss. It can also be used for both feature extraction and fine-tuning.</p>
+
+        <h2 class="subsection-title">5.2 Training and Validation Curves</h2>
+
+        <p>For the new task \(B\), the pipeline should calculate the generalization gap:</p>
+
+        <div class="math-block">
+            $$G_B^{(e)} = L_{\mathrm{val},B}^{(e)} - L_{\mathrm{train},B}^{(e)}$$
+        </div>
+
+        <p>In this formula, \(L_{\mathrm{train},B}^{(e)}\) is the training loss and \(L_{\mathrm{val},B}^{(e)}\) is the validation loss at epoch \(e\).</p>
+
+        <p>The pipeline should create a table like the following:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9pt;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000; padding:4px;">Epoch</th>
+                    <th style="border:1px solid #000; padding:4px;">Training Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Validation Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Generalization Gap</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">1</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{\mathrm{train},B}^{(1)}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{\mathrm{val},B}^{(1)}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(G_B^{(1)}\)</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">2</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{\mathrm{train},B}^{(2)}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{\mathrm{val},B}^{(2)}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(G_B^{(2)}\)</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">\(\dots\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(\dots\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(\dots\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(\dots\)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The training and validation curves should be interpreted in a simple way:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9pt;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000; padding:4px;">Training Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Validation Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Interpretation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">The model is learning and generalizing.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Stabilizes</td>
+                    <td style="border:1px solid #000; padding:4px;">Overfitting may be starting.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Increases</td>
+                    <td style="border:1px solid #000; padding:4px;">The model is overfitting.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Remains high</td>
+                    <td style="border:1px solid #000; padding:4px;">Remains high</td>
+                    <td style="border:1px solid #000; padding:4px;">The model is not adapting enough.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>These curves are preferred over training loss alone because a low training loss does not prove that the model performs well with unseen validation data.</p>
+
+        <h2 class="subsection-title">5.3 Previous-Task Retention</h2>
+
+        <p>Before training on the new task, the model should be evaluated using the previous-task validation set. This result becomes the retention baseline.</p>
+
+        <p>For a previous task \(A\), the change in validation loss can be calculated as:</p>
+
+        <div class="math-block">
+            $$F_A^{(e)} = L_{\mathrm{val},A}^{(e)} - L_{\mathrm{val},A}^{(0)}$$
+        </div>
+
+        <p>Here, \(L_{\mathrm{val},A}^{(0)}\) is the validation loss before transfer learning and \(L_{\mathrm{val},A}^{(e)}\) is the validation loss after epoch \(e\) of the new task.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9pt;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000; padding:4px;">Result</th>
+                    <th style="border:1px solid #000; padding:4px;">Interpretation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">\(F_A^{(e)} \approx 0\)</td>
+                    <td style="border:1px solid #000; padding:4px;">Previous knowledge remains stable.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">\(F_A^{(e)} &gt; 0\)</td>
+                    <td style="border:1px solid #000; padding:4px;">Previous-task performance has become worse.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">\(F_A^{(e)}\) increases repeatedly</td>
+                    <td style="border:1px solid #000; padding:4px;">Forgetting is increasing during training.</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">\(F_A^{(e)} &lt; 0\)</td>
+                    <td style="border:1px solid #000; padding:4px;">Previous-task validation performance improved.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This measurement is useful because catastrophic forgetting is detected by checking whether the model performs worse on the previous task, not only by checking whether its weights changed.</p>
+
+        <h2 class="subsection-title">5.4 Combined Evaluation Matrix</h2>
+
+        <p>The pipeline should combine the new-task curves with the previous-task validation loss.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9pt;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000; padding:4px;">New-Task Training Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">New-Task Validation Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Previous-Task Validation Loss</th>
+                    <th style="border:1px solid #000; padding:4px;">Diagnosis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Stable</td>
+                    <td style="border:1px solid #000; padding:4px;">Successful transfer</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Increases</td>
+                    <td style="border:1px solid #000; padding:4px;">Stable</td>
+                    <td style="border:1px solid #000; padding:4px;">Overfitting</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Increases</td>
+                    <td style="border:1px solid #000; padding:4px;">Catastrophic forgetting</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Decreases</td>
+                    <td style="border:1px solid #000; padding:4px;">Increases</td>
+                    <td style="border:1px solid #000; padding:4px;">Increases</td>
+                    <td style="border:1px solid #000; padding:4px;">Overfitting and forgetting</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This matrix separates the two problems. Overfitting is detected using the difference between training and validation behavior on the new task. Catastrophic forgetting is detected using the validation loss of the previous task.</p>
+
+        <h2 class="subsection-title">5.5 Task-by-Checkpoint Matrix</h2>
+
+        <p>When the model learns several tasks, the pipeline should save the validation loss of each task after every training stage.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9pt;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #000; padding:4px;">Evaluated Task</th>
+                    <th style="border:1px solid #000; padding:4px;">After Task A</th>
+                    <th style="border:1px solid #000; padding:4px;">After Task B</th>
+                    <th style="border:1px solid #000; padding:4px;">After Task C</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Task A</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{A,A}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{A,B}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{A,C}\)</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Task B</td>
+                    <td style="border:1px solid #000; padding:4px;">—</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{B,B}\)</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{B,C}\)</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #000; padding:4px;">Task C</td>
+                    <td style="border:1px solid #000; padding:4px;">—</td>
+                    <td style="border:1px solid #000; padding:4px;">—</td>
+                    <td style="border:1px solid #000; padding:4px;">\(L_{C,C}\)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The diagonal shows the validation loss when each task was learned. The values to the right show how the performance changed after later tasks were learned. This matrix helps identify which task was forgotten and when the deterioration started.</p>
+
+        <h2 class="subsection-title">5.6 Automated Validation Pipeline</h2>
+
+        <p>The automated pipeline should follow these steps:</p>
+
+        <ol>
+            <li><strong>Separate the data:</strong> Keep a training and validation set for every task.</li>
+            <li><strong>Create a baseline:</strong> Before transfer learning, evaluate the model on the new task and on all previous-task validation sets.</li>
+            <li><strong>Train the new task:</strong> Apply feature extraction or fine-tuning.</li>
+            <li><strong>Evaluate every epoch:</strong> Record the new-task training loss, new-task validation loss and previous-task validation loss.</li>
+            <li><strong>Detect overfitting:</strong> Create a warning when training loss decreases but validation loss increases.</li>
+            <li><strong>Detect forgetting:</strong> Create a warning when the previous-task validation loss increases compared with its baseline.</li>
+            <li><strong>Apply early stopping:</strong> Stop training when the new-task validation loss begins to become worse while training loss continues decreasing.</li>
+            <li><strong>Save checkpoints:</strong> Keep the model checkpoints that provide good validation performance without producing unacceptable forgetting.</li>
+            <li><strong>Compare the strategies:</strong> Compare feature extraction and fine-tuning using the same validation sets and evaluation measurements.</li>
+        </ol>
+
+        <h2 class="subsection-title">5.7 Final Model Selection</h2>
+
+        <p>The final model should not be selected only because it has the lowest training loss. The selected checkpoint should have:</p>
+
+        <ul>
+            <li>A low validation loss on the new task.</li>
+            <li>A controlled difference between training and validation loss.</li>
+            <li>A previous-task validation loss close to its original baseline.</li>
+        </ul>
+
+        <p>Feature extraction should be preferred when fine-tuning produces only a small improvement on the new task but causes a large loss of previous knowledge.</p>
+
+        <p>Fine-tuning should be preferred when it improves the new-task validation loss and the previous-task validation loss remains stable.</p>
+
+        <p>Therefore, the proposed pipeline selects the transfer-learning configuration that gives a reasonable balance between learning the new task, generalizing to validation data and retaining the previously learned task.</p>
+        
+        <h1 class="section-title">6. Conclusions</h1>
+        <p><strong>1.</strong> I learned that generalization and regularization are related to catastrophic forgetting because both depend on controlling how the model changes its weights. Regularization mechanisms help the model avoid memorizing the training data, while methods such as EWC protect important weights from being changed too much when a new task is learned.</p>
+
+        <p><strong>2.</strong> I learned that transfer learning does not automatically prevent catastrophic forgetting. Feature extraction reduces this problem by freezing the transferred layers, while fine-tuning allows better adaptation but can change previous knowledge. Therefore, the correct strategy depends on balancing the learning of the new task with the retention of the previous task.</p>
+
+        <p><strong>3.</strong> The main challenge when designing the pipeline was evaluating overfitting and catastrophic forgetting separately. The pipeline must compare training and validation loss for the new task, while also checking the validation loss of previous tasks. The final model should not only learn the new task, but also generalize well and preserve previous knowledge.</p>
+
+
+        <h1 class="section-title">References</h1>
+        <div class="reference-list">
+            <div class="reference-item">[1] Kukačka, J. Golkov, V. and Cremers, D. 2017. Regularization for Deep Learning: A Taxonomy. Technical University of Munich. DOI= https://doi.org/10.48550/arXiv.1710.10686.</div>
+            <div class="reference-item">[2] Zhang, C. Bengio, S. Hardt, M. Benjamin, R. Oriol, V. 2017. Understanding deep learning requires rethinking generalization. DOI= https://doi.org/10.48550/arXiv.1611.03530.</div>
+            <div class="reference-item">[3] Srivastava, N. Hinton, G. Krizhevsky, A. Sutskever, I. Salakhutdinov, R. 2014. Dropout: A Simple Way to Prevent Neural Networks from Overfitting. University of Toronto. Journal of Machine Learning Research 15 (2014) 1929-1958. DOI= https://dl.acm.org/doi/10.5555/2627435.2670313.</div>
+            <div class="reference-item">[4] Foret, P. Kleiner, A. Mobahi, H. Behman, N. 2020. Sharpness-Aware Minimization for Efficiently Improving Generalization. Published as a conference paper at ICLR 2021. DOI= https://doi.org/10.48550/arXiv.2010.01412</div>
+            <div class="reference-item">[5] Kirkpatrick, J. Pascanu, R. Rabinowitz, N. Veness, J. Desjardins, G. Rusu, A. A. Milan, K. Quan, J. Ramalho, T. Grabska-Barwinska, A. Hassabis, D. 2017. Overcoming catastrophic forgetting in neural networks. DOI= https://doi.org/10.48550/arXiv.1612.00796.</div>
+            <div class="reference-item">[6] van de Ven, G. M. Tolias, A. S. 2019. Three scenarios for continual learning. DOI= https://doi.org/10.48550/arXiv.1904.07734.</div>
+            <div class="reference-item">[7] Rebuffi, S. A. Kolesnikov, A. Sperl, G. Lampert, C. H. 2017. iCaRL: Incremental Classifier and Representation Learning. DOI= https://doi.org/10.48550/arXiv.1611.07725.</div>
+            <div class="reference-item">[8] Li, Z. Hoiem, D. 2016. Learning without Forgetting. DOI= https://doi.org/10.48550/arXiv.1606.09282.</div>
+            <div class="reference-item">[9] Tan, C. Sun, F. Kong, T. Zhang, W. Yang, C. Liu, C. 2018. A Survey on Deep Transfer Learning. DOI= https://doi.org/10.48550/arXiv.1808.01974.</div>
+            <div class="reference-item">[10] Yosinski, J. Clune, J. Bengio, Y. Lipson, H. 2014. How transferable are features in deep neural networks? DOI= https://doi.org/10.48550/arXiv.1411.1792.</div>
+            <div class="reference-item">[11] Hu, E. J. Shen, Y. Wallis, P. Allen-Zhu, Z. Li, Y. Wang, S. Wang, L. Chen, W. 2021. LoRA: Low-Rank Adaptation of Large Language Models. DOI= https://doi.org/10.48550/arXiv.2106.09685.</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

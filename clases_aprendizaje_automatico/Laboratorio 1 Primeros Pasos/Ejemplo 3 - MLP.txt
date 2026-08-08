@@ -1,0 +1,63 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
+
+# ==========================================
+# 1. Cargar Datos y Dividir
+# ==========================================
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+# ==========================================
+# 2. EL PASO CLAVE PARA REDES NEURONALES: Escalar los datos
+# ==========================================
+# StandardScaler transforma los datos para que tengan media 0 y varianza 1.
+# Esto ayuda a que la Red Neuronal aprenda mucho más rápido y mejor.
+scaler = StandardScaler()
+
+# "Ajustamos" el escalador solo con los datos de entrenamiento y los transformamos
+X_train_scaled = scaler.fit_transform(X_train)
+# Transformamos los datos de prueba usando las mismas reglas que aprendió del entrenamiento
+X_test_scaled = scaler.transform(X_test)
+
+# ==========================================
+# 3. Inicializar y Entrenar la Red Neuronal (MLP)
+# ==========================================
+# hidden_layer_sizes=(10, 10): Creamos 2 capas ocultas, cada una con 10 "neuronas".
+# max_iter=1000: Le damos hasta 1000 intentos (épocas) para que aprenda.
+modelo_nn = MLPClassifier(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42)
+
+# Entrenamos usando los datos ESCALADOS
+modelo_nn.fit(X_train_scaled, y_train)
+
+# ==========================================
+# 4. Predicción y Evaluación
+# ==========================================
+# Predecimos usando los datos de prueba ESCALADOS
+pred_nn = modelo_nn.predict(X_test_scaled)
+
+acc = accuracy_score(y_test, pred_nn)
+rec = recall_score(y_test, pred_nn, average='macro')
+
+print("--- Red Neuronal (MLP Classifier) ---")
+print(f"Accuracy : {acc:.4f} ({acc * 100:.1f}%)")
+print(f"Recall   : {rec:.4f} ({rec * 100:.1f}%)\n")
+
+# ==========================================
+# 5. Visualización de la Matriz de Confusión
+# ==========================================
+plt.figure(figsize=(6, 4))
+sns.heatmap(confusion_matrix(y_test, pred_nn), annot=True, cmap='Reds', fmt='g', 
+            xticklabels=iris.target_names, yticklabels=iris.target_names)
+plt.title('Matriz de Confusión - Red Neuronal')
+plt.xlabel('Etiqueta Predicha')
+plt.ylabel('Etiqueta Real')
+plt.show()

@@ -1,0 +1,57 @@
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_california_housing, load_breast_cancer
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier, plot_tree
+
+# ==========================================
+# 1. VISUALIZAR DECISION TREE REGRESSOR
+# ==========================================
+print("Entrenando y graficando DecisionTreeRegressor...")
+
+# Cargamos un subconjunto de datos para el ejemplo
+california = fetch_california_housing()
+X_reg, y_reg = california.data, california.target
+
+# Instanciamos con una profundidad máxima de 3 para que el gráfico sea legible
+reg_tree = DecisionTreeRegressor(max_depth=3, random_state=42)
+reg_tree.fit(X_reg, y_reg)
+
+plt.figure(figsize=(20, 10))
+plot_tree(
+    reg_tree, 
+    feature_names=california.feature_names,
+    filled=True, 
+    rounded=True, 
+    fontsize=10
+)
+plt.title("Árbol de Decisión para Regresión (Precios de Casas en California)")
+plt.show()
+
+# ==========================================
+# 2. VISUALIZAR DECISION TREE CLASSIFIER
+# ==========================================
+print("\nEntrenando y graficando DecisionTreeClassifier...")
+
+cancer = load_breast_cancer()
+X_clf, y_clf = cancer.data, cancer.target
+
+# Instanciamos con profundidad 3
+clf_tree = DecisionTreeClassifier(max_depth=3, random_state=42)
+clf_tree.fit(X_clf, y_clf)
+
+plt.figure(figsize=(20, 10))
+plot_tree(
+    clf_tree, 
+    feature_names=cancer.feature_names,
+    class_names=cancer.target_names, # Muestra 'malignant' o 'benign' en las hojas
+    filled=True, 
+    rounded=True, 
+    fontsize=10
+)
+plt.title("Árbol de Decisión para Clasificación (Detección de Cáncer de Mama)")
+plt.show()
+
+
+¿Qué verás al ejecutar esto?
+El primer gráfico se verá casi idéntico al del DecisionTreeRegressor de la respuesta anterior. La única diferencia es que los valores de los cortes podrían variar ligeramente, ya que este árbol en particular solo se entrenó con una submuestra aleatoria de los datos (debido al comportamiento bootstrap del bosque).
+
+El segundo gráfico te mostrará un diagrama de barras donde verás claramente que MedInc (Ingreso Medio) es la variable reina absoluta de este modelo, seguida de lejos por variables como la ubicación geográfica (Longitude y Latitude), dándote una visión clara de cómo opera el "cerebro colectivo" del bosque.

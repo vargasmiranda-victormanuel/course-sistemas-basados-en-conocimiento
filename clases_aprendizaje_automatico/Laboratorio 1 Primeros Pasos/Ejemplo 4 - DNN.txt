@@ -1,0 +1,177 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, recall_score, classification_report
+import numpy as np
+
+# ==========================================
+# 1. Preparación y Escalado (Igual que antes)
+# ==========================================
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# ==========================================
+# 2. El Mundo PyTorch: Dataset y Tensores
+# ==========================================
+# En PyTorch, los datos deben estar en "Tensores" (las matrices de PyTorch).
+# Además, creamos una clase Dataset para decirle a PyTorch cómo leer nuestros datos.
+
+class IrisDataset(Dataset):
+    def __init__(self, X, y):
+        # Convertimos los arreglos de NumPy a Tensores de PyTorch
+        # X debe ser flotante de 32 bits, y 'y' debe ser entero largo (long) para la función de pérdida
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.long)
+        
+    def __len__(self):
+        return len(self.y)
+    
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+# Instanciamos los datasets
+train_dataset = IrisDataset(X_train_scaled, y_train)
+test_dataset = IrisDataset(X_test_scaled, y_test)
+
+# DataLoader: Agrupa los datos en "lotes" (batches) para no saturar la memoria
+# batch_size=16 significa que la red aprenderá viendo 16 flores a la vez.
+train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+
+# ==========================================
+# 3. Construyendo la Arquitectura de la Red
+# ==========================================
+class RedNeuronalIris(nn.Module):
+    def __init__(self):
+        super(RedNeuronalIris, self).__init__()
+        # Capa de entrada (4 variables) a capa oculta 1 (16 neuronas)
+        self.capa1 = nn.Linear(4, 16)
+        # Capa oculta 1 a capa oculta 2 (16 neuronas)
+        self.capa2 = nn.Linear(16, 16)
+        # Capa oculta 2 a capa de salida (3 clases: setosa, versicolor, virginica)
+        self.capa3 = nn.Linear(16, 3)
+        
+        # Función de activación (introduce no-linealidad)
+        self.relu = nn.ReLU()
+        
+    def forward(self, x):
+        # Definimos el flujo hacia adelante (Forward Pass)
+        x = self.relu(self.capa1(x))
+        x = self.relu(self.capa2(x))
+        x = self.capa3(x) 
+        # Nota: NO aplicamos Softmax aquí porque CrossEntropyLoss lo incluye internamente.
+        return x
+
+# Instanciamos el modelo
+modelo = RedNeuronalIris()
+
+# ==========================================
+# 4. Función de Pérdida y Optimizador
+# ==========================================
+# Función que calcula qué tan equivocada está la red (Loss)
+criterio = nn.CrossEntropyLoss()
+
+# El Optimizador que ajustará los pesos para reducir el error (Loss)
+# lr = Learning Rate (tasa de aprendizaje)
+optimizador = optim.Adam(modelo.parameters(), lr=0.01)
+
+# ==========================================
+# 5. EL BUCLE DE ENTRENAMIENTO (Training Loop)
+# ==========================================
+print("Iniciando Entrenamiento...")
+epocas = 100
+
+for epoca in range(epocas):
+    modelo.train() # Ponemos el modelo en modo entrenamiento
+    perdida_total = 0
+    
+    for lote_X, lote_y in train_loader:
+        # 1. Limpiar los gradientes (cálculos) de la iteración anterior
+        optimizador.zero_grad()
+        
+        # 2. Forward Pass: Hacer que el modelo adivine
+        predicciones = modelo(lote_X)
+        
+        # 3. Calcular el Error (Loss)
+        error = criterio(predicciones, lote_y)
+        
+        # 4. Backward Pass: Calcular cuánto debe cambiar cada peso (Magia de PyTorch)
+        error.backward()
+        
+        # 5. Actualizar los pesos
+        optimizador.step()
+        
+        perdida_total += error.item()
+        
+    # Imprimir el progreso cada 20 épocas
+    if (epoca + 1) % 20 == 0:
+        print(f"Época {epoca+1}/{epocas} | Pérdida (Loss): {perdida_total/len(train_loader):.4f}")
+
+# ==========================================
+# 6. Evaluación del Modelo
+# ==========================================
+print("\nEvaluando el modelo...")
+modelo.eval() # Modo evaluación (apaga cosas como Dropout si las hubiera)
+
+todas_las_predicciones = []
+todas_las_etiquetas = []
+
+# torch.no_grad() apaga el motor de cálculo de gradientes para ahorrar memoria y CPU
+with torch.no_grad():
+    for lote_X, lote_y in test_loader:
+        salidas = modelo(lote_X)
+        
+        # Salidas son probabilidades (logits). Tomamos el índice con el valor más alto
+        _, predicciones = torch.max(salidas, 1)
+        
+        todas_las_predicciones.extend(predicciones.numpy())
+        todas_las_etiquetas.extend(lote_y.numpy())
+
+# Calculamos métricas usando scikit-learn con los resultados de PyTorch
+acc = accuracy_score(todas_las_etiquetas, todas_las_predicciones)
+rec = recall_score(todas_las_etiquetas, todas_las_predicciones, average='macro')
+
+print("==========================================")
+print("RESULTADOS DE LA RED (PyTorch)")
+print("==========================================")
+print(f"Accuracy : {acc:.4f} ({acc * 100:.1f}%)")
+print(f"Recall   : {rec:.4f} ({rec * 100:.1f}%)\n")
+
+
+# Importamos las librerías de visualización (si no estaban importadas)
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+# ==========================================
+# 7. Visualización de la Matriz de Confusión (PyTorch)
+# ==========================================
+print("Generando Matriz de Confusión...")
+
+# Calculamos la matriz usando los arrays que extrajimos del modelo
+cm = confusion_matrix(todas_las_etiquetas, todas_las_predicciones)
+
+# Configuramos el gráfico
+plt.figure(figsize=(6, 4))
+# Usamos un mapa de color distinto (ej. Oranges) para diferenciarlo de los modelos anteriores
+sns.heatmap(cm, annot=True, cmap='Oranges', fmt='g', 
+            xticklabels=iris.target_names, yticklabels=iris.target_names)
+
+plt.title('Matriz de Confusión - Red Neuronal (PyTorch)')
+plt.xlabel('Etiqueta Predicha')
+plt.ylabel('Etiqueta Real')
+
+# Aseguramos que el layout se ajuste bien y mostramos
+plt.tight_layout()
+plt.show()

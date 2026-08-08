@@ -1,0 +1,90 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, recall_score, classification_report, confusion_matrix
+
+# ==========================================
+# 1. Cargar y Preparar los Datos
+# ==========================================
+# Scikit-learn incluye el dataset de Iris por defecto
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+
+# Añadimos la columna objetivo (0, 1, 2) y el nombre de la especie para visualización
+df['target'] = iris.target
+df['species'] = df['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
+
+print("Primeras 5 filas del dataset:")
+print(df.head(), "\n")
+
+# ==========================================
+# 2. Análisis Exploratorio de Datos (EDA)
+# ==========================================
+sns.set_theme(style="whitegrid")
+
+# 2.1 Distribuciones y Relaciones (Pairplot)
+# Muestra cómo se agrupan las especies según las diferentes combinaciones de variables
+print("Generando gráfico de distribuciones (Pairplot)...")
+sns.pairplot(df.drop('target', axis=1), hue='species', diag_kind='kde', palette='husl')
+plt.suptitle('Distribuciones y Relaciones por Especie', y=1.02)
+plt.show()
+
+# 2.2 Matriz de Correlación
+# Muestra qué variables están linealmente relacionadas entre sí
+print("Generando Matriz de Correlación...")
+plt.figure(figsize=(8, 6))
+# Calculamos la correlación solo de las variables numéricas (excluyendo target y species)
+correlation_matrix = df.drop(['target', 'species'], axis=1).corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
+plt.title('Matriz de Correlación de las Características')
+plt.show()
+
+# ==========================================
+# 3. Preprocesamiento y Entrenamiento
+# ==========================================
+# Separamos las características (X) de la variable a predecir (y)
+X = df.drop(['target', 'species'], axis=1)
+y = df['target']
+
+# Dividimos en conjunto de entrenamiento (70%) y prueba (30%)
+# stratify=y asegura que la proporción de especies se mantenga en ambos conjuntos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+# Inicializamos y entrenamos el modelo (Random Forest)
+modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo.fit(X_train, y_train)
+
+# ==========================================
+# 4. Predicción y Evaluación
+# ==========================================
+# Hacemos las predicciones sobre los datos de prueba
+y_pred = modelo.predict(X_test)
+
+# Calculamos las métricas
+# Accuracy: Porcentaje total de predicciones correctas
+accuracy = accuracy_score(y_test, y_pred)
+
+# Recall: Qué porcentaje de los positivos reales logramos encontrar. 
+# Usamos average='macro' para calcular la métrica por clase y sacar un promedio no ponderado (ideal para multiclase)
+recall = recall_score(y_test, y_pred, average='macro') 
+
+print("==========================================")
+print("RESULTADOS DE LA EVALUACIÓN")
+print("==========================================")
+print(f"Accuracy (Exactitud): {accuracy:.4f} ({accuracy * 100:.2f}%)")
+print(f"Recall (Sensibilidad Macro): {recall:.4f} ({recall * 100:.2f}%)\n")
+
+print("Reporte de Clasificación Detallado:")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+# Matriz de Confusión Visual
+plt.figure(figsize=(6, 4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, cmap='Blues', fmt='g', 
+            xticklabels=iris.target_names, yticklabels=iris.target_names)
+plt.xlabel('Etiqueta Predicha')
+plt.ylabel('Etiqueta Real')
+plt.title('Matriz de Confusión')
+plt.show()

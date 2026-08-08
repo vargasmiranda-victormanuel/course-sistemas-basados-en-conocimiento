@@ -1,0 +1,93 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Tu función del modelo (vectorizada)
+def model(x, w):
+    # Calcula la combinación lineal y retorna
+    a = w[0] + np.dot(x.T, w[1:])
+    return a.T
+
+# 2. Tu función de costo (modificada para aceptar x e y explícitamente)
+def least_squares(w, x, y):
+    # Calcula el costo de mínimos cuadrados
+    cost = np.sum((model(x, w) - y)**2)
+    return cost / float(y.size)
+
+# 3. Implementación del Descenso de Gradiente
+def gradient_descent(x, y, w_init, learning_rate, iterations):
+    w = np.copy(w_init)
+    cost_history = []
+    N = float(y.size)
+
+    for i in range(iterations):
+        # Generar predicciones con los pesos actuales
+        predictions = model(x, w)
+
+        # Calcular el error (Predicción - Real)
+        error = predictions - y
+
+        # Calcular los gradientes
+        # Gradiente para el sesgo (bias, w[0])
+        grad_w0 = (2/N) * np.sum(error)
+        # Gradiente para los pesos (w[1:])
+        grad_w1 = (2/N) * np.dot(x, error)
+
+        # Actualizar los pesos
+        w[0] = w[0] - learning_rate * grad_w0
+        w[1:] = w[1:] - learning_rate * grad_w1
+
+        # Guardar el costo en esta iteración para poder visualizarlo después
+        cost = least_squares(w, x, y)
+        cost_history.append(cost)
+
+    return w, cost_history
+
+# --- Configuración, Entrenamiento y Visualización ---
+
+if __name__ == "__main__":
+    # A. Generar datos sintéticos para la demostración
+    np.random.seed(42)
+    # x: 1 característica, 100 puntos de datos
+    x = np.random.rand(1, 100)
+    # y: Relación lineal y = 3.5x + 1.2 + algo de ruido aleatorio
+    y = 3.5 * x[0] + 1.2 + np.random.randn(100) * 0.4
+
+    # B. Inicializar parámetros
+    # w_init = [sesgo, peso_x]
+    w_init = np.array([0.0, 0.0])
+    learning_rate = 0.1
+    iterations = 500
+
+    # C. Entrenar el modelo
+    w_final, cost_history = gradient_descent(x, y, w_init, learning_rate, iterations)
+
+    print(f"Pesos finales encontrados:")
+    print(f"Intersección (Bias/w0): {w_final[0]:.4f}")
+    print(f"Pendiente (w1): {w_final[1]:.4f}")
+
+    # D. Visualización
+    plt.figure(figsize=(12, 5))
+
+    # Gráfico 1: Los datos y la línea de regresión ajustada
+    plt.subplot(1, 2, 1)
+    plt.scatter(x[0], y, color='blue', alpha=0.5, label='Datos reales')
+
+    # Crear puntos para la línea ajustada
+    x_line = np.linspace(0, 1, 100).reshape(1, -1)
+    y_line = model(x_line, w_final)
+
+    plt.plot(x_line[0], y_line, color='red', linewidth=2, label='Línea de Regresión')
+    plt.title("Ajuste de Regresión Lineal")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.legend()
+
+    # Gráfico 2: Historial del costo (cómo aprende el modelo)
+    plt.subplot(1, 2, 2)
+    plt.plot(range(iterations), cost_history, color='green', linewidth=2)
+    plt.title("Curva de Aprendizaje (Costo vs. Iteraciones)")
+    plt.xlabel("Iteración")
+    plt.ylabel("Costo de Mínimos Cuadrados")
+
+    plt.tight_layout()
+    plt.show()

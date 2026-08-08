@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, recall_score, f1_score
+
+# 1. Cargar datos
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 2. Generar datos para la curva variando la complejidad (profundidad del árbol)
+profundidades = range(1, 15)
+train_scores = []
+test_scores = []
+
+for d in profundidades:
+    clf = DecisionTreeClassifier(max_depth=d, random_state=42)
+    clf.fit(X_train, y_train)
+    
+    # Usamos Accuracy para la gráfica
+    train_scores.append(accuracy_score(y_train, clf.predict(X_train)))
+    test_scores.append(accuracy_score(y_test, clf.predict(X_test)))
+
+# 3. Graficar las curvas
+plt.figure(figsize=(10, 5))
+plt.plot(profundidades, train_scores, label="Precisión en Entrenamiento", marker='o', color='navy')
+plt.plot(profundidades, test_scores, label="Precisión en Prueba (Validación)", marker='o', color='red')
+plt.title("Curva de Validación: Detectando el Sobreajuste")
+plt.xlabel("Complejidad del Modelo (Profundidad del Árbol)")
+plt.ylabel("Accuracy (Exactitud)")
+plt.axvline(x=3, color='green', linestyle='--', label='Ajuste Óptimo')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 4. Ver métricas detalladas en los 3 puntos clave
+puntos_clave = [1, 3, 14] # Profundidades para Sub, Óptimo y Sobreajuste
+print("\nMétricas en datos de PRUEBA (Datos no vistos):")
+
+for d in puntos_clave:
+    clf = DecisionTreeClassifier(max_depth=d, random_state=42)
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    
+    print(f"\n--- Profundidad {d} ---")
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.3f}")
+    # En salud médica, el Recall (Sensibilidad) es vital: de los enfermos reales, ¿cuántos detectamos?
+    print(f"Recall:   {recall_score(y_test, y_pred):.3f}") 
+    print(f"F1-Score: {f1_score(y_test, y_pred):.3f}")

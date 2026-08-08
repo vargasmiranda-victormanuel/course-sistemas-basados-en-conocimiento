@@ -1,0 +1,192 @@
+Ejemplo Ajuste Regresion
+
+El ejemplo clásico para ilustrar estos tres escenarios es utilizar regresión polinómica utilizando la librería scikit-learn.
+
+En este código, generamos una curva no lineal (la señal verdadera) y le añadimos un poco de ruido aleatorio para simular datos del mundo real. Luego, entrenamos tres modelos distintos para intentar aprender esa curva.
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+# 1. Generar datos simulados (una curva con ruido aleatorio)
+np.random.seed(0)
+n_samples = 30
+
+def funcion_verdadera(X):
+    return np.cos(1.5 * np.pi * X)
+
+# Datos de entrenamiento
+X = np.sort(np.random.rand(n_samples))
+y = funcion_verdadera(X) + np.random.randn(n_samples) * 0.1
+
+# 2. Configurar la complejidad de los modelos
+# Grado 1: Línea recta | Grado 4: Curva moderada | Grado 15: Curva extremadamente compleja
+grados = [1, 4, 15]
+titulos = ['Subajuste (Grado 1)', 'Ajuste Óptimo (Grado 4)', 'Sobreajuste (Grado 15)']
+
+plt.figure(figsize=(14, 4))
+X_test = np.linspace(0, 1, 100) # Puntos nuevos para probar cómo generaliza el modelo
+
+# 3. Entrenar y graficar cada modelo
+for i, grado in enumerate(grados):
+    ax = plt.subplot(1, 3, i + 1)
+    
+    # Crear un pipeline: transforma los datos a un polinomio y aplica regresión lineal
+    modelo = make_pipeline(PolynomialFeatures(grado), LinearRegression())
+    modelo.fit(X[:, np.newaxis], y)
+    
+    # Hacer predicciones con los datos de prueba
+    y_pred = modelo.predict(X_test[:, np.newaxis])
+    
+    # Graficar
+    plt.scatter(X, y, color='navy', s=30, marker='o', label="Datos de entrenamiento (con ruido)")
+    plt.plot(X_test, funcion_verdadera(X_test), color='green', label="Señal verdadera (sin ruido)")
+    plt.plot(X_test, y_pred, color='red', label="Predicción del modelo")
+    
+    plt.title(titulos[i])
+    plt.ylim((-1.5, 1.5))
+    plt.legend(loc="lower left", fontsize='small')
+
+plt.tight_layout()
+plt.show()
+
+
+Lo que sucede en cada caso: 
+
+Subajuste (Polinomio de Grado 1): El modelo es una simple regresión lineal (una línea recta). Es demasiado rígido y carece de la capacidad algorítmica para curvarse y seguir los datos. Falla en capturar la estructura básica.
+
+Ajuste Óptimo (Polinomio de Grado 4): El modelo tiene la complejidad exacta. Su predicción (línea roja) se superpone casi a la perfección con la señal verdadera (línea verde). Ignora el ruido y captura la tendencia general.
+
+Sobreajuste (Polinomio de Grado 15): El modelo es excesivamente complejo. Tiene tantos parámetros que decide "conectar los puntos", haciendo contorsiones extremas para tocar cada punto de entrenamiento exacto, memorizando el ruido. Si ingresas un valor nuevo de $X$, la predicción roja lanzará un valor caótico completamente alejado de la curva verde real.
+
+California Housing
+
+import pandas as pd
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
+
+# 1. Cargar datos
+X, y = fetch_california_housing(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 2. Definir los modelos
+modelos = {
+    "Subajuste (Profundidad 2)": DecisionTreeRegressor(max_depth=2),
+    "Ajuste Óptimo (Profundidad 8)": DecisionTreeRegressor(max_depth=8),
+    "Sobreajuste (Sin límite)": DecisionTreeRegressor(max_depth=None)
+}
+
+# 3. Entrenar y evaluar
+resultados = []
+for nombre, modelo in modelos.items():
+    modelo.fit(X_train, y_train)
+    
+    # Predicciones
+    y_train_pred = modelo.predict(X_train)
+    y_test_pred = modelo.predict(X_test)
+    
+    # Calculando el Error Absoluto Medio (MAE)
+    mae_train = mean_absolute_error(y_train, y_train_pred)
+    mae_test = mean_absolute_error(y_test, y_test_pred)
+    
+    # Calculando el Error Cuadrático Medio (MSE)
+    mse_test = mean_squared_error(y_test, y_test_pred)
+    
+    # Calculando el Error Porcentual Absoluto Medio (MAPE)
+    mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
+    
+    resultados.append({
+        "Modelo": nombre,
+        "MAE Train (Error)": round(mae_train, 3),
+        "MAE Test (Error)": round(mae_test, 3),
+        "MSE Test": round(mse_test, 3),
+        "MAPE Test": f"{round(mape_test * 100, 2)}%"
+    })
+
+# Mostrar resultados
+df_resultados = pd.DataFrame(resultados)
+print(df_resultados.to_string(index=False))
+
+Dado que el conjunto de datos de California Housing tiene 8 variables (dimensiones), no es posible graficar la "línea de ajuste" tridimensional o multidimensional completa. Sin embargo, hay dos formas visuales perfectas de representar estos tres conceptos usando tu mismo código.
+
+
+La Curva de Validación (Error vs. Complejidad)
+Esta es la forma estándar en ciencia de datos para visualizar el subajuste y el sobreajuste. Consiste en graficar cómo evoluciona el error a medida que le damos más profundidad (complejidad) al árbol.
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Calculamos el error para profundidades del 1 al 25
+profundidades = np.arange(1, 25)
+errores_train = []
+errores_test = []
+
+for d in profundidades:
+    modelo = DecisionTreeRegressor(max_depth=d, random_state=42)
+    modelo.fit(X_train, y_train)
+    errores_train.append(mean_absolute_error(y_train, modelo.predict(X_train)))
+    errores_test.append(mean_absolute_error(y_test, modelo.predict(X_test)))
+
+# Crear el gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(profundidades, errores_train, label='Error Entrenamiento (Train)', marker='o', color='#1f77b4')
+plt.plot(profundidades, errores_test, label='Error Prueba (Test)', marker='o', color='#ff7f0e')
+
+# Marcamos los 3 puntos exactos de tu ejemplo
+plt.axvline(x=2, color='red', linestyle='--', label='Subajuste (Prof. 2)')
+plt.axvline(x=8, color='green', linestyle='--', label='Ajuste Óptimo (Prof. 8)')
+plt.axvline(x=20, color='purple', linestyle='--', label='Sobreajuste (Prof. Alta)')
+
+plt.title('Curva de Validación: Complejidad vs Error')
+plt.xlabel('Profundidad del Árbol (max_depth)')
+plt.ylabel('Error Absoluto Medio (MAE)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+Que vemos: Una curva donde el error de entrenamiento (azul) cae hacia cero eternamente. El error de prueba (naranja) bajará al principio, encontrará su punto más bajo alrededor de la profundidad 8 (ajuste óptimo) y luego comenzará a subir nuevamente (sobreajuste).
+
+
+La Curva de Predicción en 1D (Las formas del árbol)
+Para ver literalmente las "líneas de regresión" que dibuja el árbol, necesitamos simplificar el problema a una sola variable. Tomaremos el Ingreso Medio (MedInc) y graficaremos cómo cada uno de tus 3 modelos intenta dibujar una línea a través de los datos reales.
+
+# Aislamos solo la primera variable (MedInc - Ingreso Medio)
+X_1d_train = X_train[:, 0].reshape(-1, 1) 
+X_1d_test = X_test[:, 0].reshape(-1, 1)
+
+# Creamos un eje X continuo para dibujar las líneas de predicción
+X_plot = np.arange(X_1d_train.min(), 10, 0.01)[:, np.newaxis] 
+
+fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+
+for ax, (nombre, modelo) in zip(axes, modelos.items()):
+    # Entrenamos solo con la variable 1D
+    modelo.fit(X_1d_train, y_train)
+    y_plot = modelo.predict(X_plot)
+    
+    # Graficamos una muestra de los datos reales (en gris)
+    ax.scatter(X_1d_train[::20], y_train[::20], color='lightgray', s=10, label='Datos reales', alpha=0.5)
+    
+    # Graficamos la línea de regresión del árbol (en rojo)
+    ax.plot(X_plot, y_plot, color='red', label='Predicción', linewidth=2)
+    
+    ax.set_title(nombre)
+    ax.set_xlabel('Ingreso Medio (MedInc)')
+    if ax == axes[0]:
+        ax.set_ylabel('Valor de la Casa (MedHouseVal)')
+    ax.legend()
+
+plt.tight_layout()
+plt.show()
+
+Lo que verás:
+
+Gráfico 1 (Subajuste): Verás una línea roja con solo 4 grandes escalones gruesos. Es demasiado simple y no captura la tendencia de los datos.
+
+Gráfico 2 (Ajuste Óptimo): Verás una línea roja con múltiples escalones finos que sigue orgánicamente la masa de puntos grises sin enloquecer.
+
+Gráfico 3 (Sobreajuste): Verás una línea roja extremadamente errática y puntiaguda que sube y baja violentamente intentando tocar cada punto individual o dato atípico ("ruido").
