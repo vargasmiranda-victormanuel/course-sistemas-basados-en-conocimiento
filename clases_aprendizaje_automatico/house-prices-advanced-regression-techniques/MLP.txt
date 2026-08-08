@@ -1,0 +1,113 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.neural_network import MLPRegressor, MLPClassifier
+from sklearn.metrics import mean_squared_error, r2_score, classification_report, accuracy_score
+
+# 1. Cargar los datos (Asumiendo que tienes el archivo de Kaggle en tu directorio)
+# Puedes descargarlo de: https://www.kaggle.com/c/house-prices-advanced-regression-techniques
+try:
+    df = pd.read_csv('train.csv')
+except FileNotFoundError:
+    print("Archivo 'train.csv' no encontrado. Asegúrate de descargarlo de Kaggle.")
+    # Creando un dataset simulado miniatura para que el código no falle si lo copias y pegas
+    np.random.seed(42)
+    df = pd.DataFrame({
+        'LotArea': np.random.randint(5000, 20000, 1000),
+        'OverallQual': np.random.randint(1, 11, 1000),
+        'Neighborhood': np.random.choice(['CollgCr', 'Veenker', 'Crawfor', 'NoRidge'], 1000),
+        'BldgType': np.random.choice(['1Fam', '2fmCon', 'Duplex', 'TwnhsE'], 1000),
+        'SalePrice': np.random.randint(50000, 500000, 1000)
+    })
+
+# 2. Definir las características (X) y separar numéricas de categóricas
+# Descartamos el ID y la variable objetivo para X
+X = df.drop(['SalePrice', 'Id'] if 'Id' in df.columns else ['SalePrice'], axis=1)
+
+numeric_features = X.select_dtypes(include=['int64', 'float64']).columns
+categorical_features = X.select_dtypes(include=['object']).columns
+
+# 3. Construir el Pipeline de Preprocesamiento
+# - Numéricas: Llenar nulos con la media y estandarizar (CRÍTICO para MLP)
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='mean')),
+    ('scaler', StandardScaler())
+])
+
+# - Categóricas: Llenar nulos con 'missing' y aplicar One-Hot Encoding
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+
+# Combinar ambos preprocesamientos
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
+    ])
+
+print("--- INICIANDO MODELO DE REGRESIÓN ---")
+# 4. Configurar el MLPRegressor
+# Objetivo: Predecir un valor continuo (SalePrice)
+y_reg = df['SalePrice']
+X_train_r, X_test_r, y_train_r, y_test_r = train_test_split(X, y_reg, test_size=0.2, random_state=42)
+
+regressor_pipeline = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('mlp_reg', MLPRegressor(
+        hidden_layer_sizes=(128, 64, 32),  # 3 capas ocultas profundas
+        activation='relu',                 # Activación estándar para regresión
+        solver='adam',                     # Optimizador eficiente
+        alpha=0.01,                        # Regularización L2 fuerte para evitar overfitting
+        batch_size=64,                     # Minilotes para actualizar pesos
+        learning_rate_init=0.005,          # Tasa de aprendizaje inicial
+        max_iter=500,                      # Máximo de épocas
+        early_stopping=True,               # Detener si no mejora (usa un 10% de validación interno)
+        random_state=42
+    ))
+])
+
+# Entrenar y Evaluar Regresor
+regressor_pipeline.fit(X_train_r, y_train_r)
+y_pred_r = regressor_pipeline.predict(X_test_r)
+
+print(f"R2 Score: {r2_score(y_test_r, y_pred_r):.4f}")
+print(f"Error Cuadrático Medio (RMSE): {np.sqrt(mean_squared_error(y_test_r, y_pred_r)):.2f}")
+print("\n" + "="*50 + "\n")
+
+
+print("--- INICIANDO MODELO DE CLASIFICACIÓN ---")
+# 5. Configurar el MLPClassifier
+# Objetivo: Predecir una categoría (¿Es una casa Premium? SalePrice > percentil 75)
+umbral_premium = df['SalePrice'].quantile(0.75)
+y_clf = (df['SalePrice'] > umbral_premium).astype(int)
+
+X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(X, y_clf, test_size=0.2, random_state=42)
+
+classifier_pipeline = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('mlp_clf', MLPClassifier(
+        hidden_layer_sizes=(64, 32),       # 2 capas ocultas (arquitectura más simple)
+        activation='tanh',                 # Tangente hiperbólica, suele ir bien en clasificación
+        solver='adam',
+        alpha=0.001,                       # Regularización más suave
+        learning_rate='adaptive',          # Reduce el learning rate si el error se estanca
+        max_iter=500,
+        early_stopping=True,
+        n_iter_no_change=15,               # Espera 15 iteraciones sin mejora antes de parar
+        random_state=42
+    ))
+])
+
+# Entrenar y Evaluar Clasificador
+classifier_pipeline.fit(X_train_c, y_train_c)
+y_pred_c = classifier_pipeline.predict(X_test_c)
+
+print(f"Exactitud (Accuracy): {accuracy_score(y_test_c, y_pred_c):.4f}")
+print("\nReporte de Clasificación:")
+print(classification_report(y_test_c, y_pred_c, target_names=['Estándar', 'Premium']))
