@@ -1,0 +1,144 @@
+GUÍA DE REFERENCIA — TODOs del Proyecto (UCenfotec_Proyecto_Estudiantes.ipynb)
+================================================================================
+Para cada TODO se indica el archivo de referencia dentro de clases_aprendizaje_automatico
+y la sección/concepto relevante a revisar.
+================================================================================
+
+PARTE I — CLASIFICACIÓN: HEART DISEASE
+---------------------------------------
+
+TODO 2: Calcular estadísticas descriptivas con .describe(include='all').
+  Referencia: Semana 8/eda + clasificacion.ipynb
+  Sección   : Bloque de exploración inicial — uso de df.describe() e info()
+
+TODO 3: Graficar distribución del target con barras y porcentajes.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+  Sección   : Visualización del balance de clases (countplot / barplot)
+
+TODO 4: Graficar histogramas de todas las variables en una grilla.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+              Semana 8/eda + regresion.ipynb
+  Sección   : Análisis de distribuciones — histogramas con df.hist() o sns.histplot()
+
+TODO 5: KDE por clase (target=0 vs 1) para variables continuas. Marcar media con línea punteada.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+  Sección   : Densidades por clase — sns.kdeplot separado por hue; ax.axvline para la media
+
+TODO 7: Curtosis con .kurtosis(). Clasificar e interpretar.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+              Semana 8/eda + regresion.ipynb
+  Sección   : Medidas de forma — skewness y kurtosis; interpretación de valores
+
+TODO 8: Mapa de calor de correlaciones de Pearson.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+              Semana 8/eda + regresion.ipynb
+  Sección   : Matriz de correlación — sns.heatmap con df.corr()
+
+TODO 9: Boxplots de variables numéricas por clase.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+  Sección   : Comparación entre clases — sns.boxplot(x='target', y=variable)
+
+TODO 12: Método IQR — cuantificar outliers; boxplots antes/después.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+              Semana 8/eda + regresion.ipynb
+  Sección   : Detección y manejo de outliers — cálculo IQR; filtrado de filas fuera de rango
+
+TODO 15: Decision Tree — probar max_depth=3, 5 y 10; usar evaluar_modelo().
+  Referencia: Laboratorio 3 y 4/Clasificadores y Regresores.txt
+              Semana 8/extra clasificacion.ipynb
+  Sección   : DecisionTreeClassifier — hiperparámetro max_depth; métricas de evaluación
+
+TODO 16: Visualizar el árbol con plot_tree (max_depth=4).
+  Referencia: Laboratorio 3 y 4/Graficar DT.txt
+  Sección   : plot_tree de sklearn — parámetros feature_names, class_names, filled
+
+TODO 17: Random Forest (n_estimators≥100); graficar importancia de variables.
+  Referencia: Laboratorio 1 Primeros Pasos/Ejemplo 1 - RF.txt
+              Laboratorio 3 y 4/Graficar RF.txt
+              Semana 8/extra clasificacion.ipynb
+  Sección   : RandomForestClassifier — feature_importances_; barplot de importancias
+
+TODO 18: MLP — arquitecturas (64,32) y (128,64,32); comparar solvers adam vs sgd.
+  Referencia: Laboratorio 1 Primeros Pasos/Ejemplo 3 - MLP.txt
+              Laboratorio 1 Primeros Pasos/Ejemplo 4 - DNN.txt
+              Semana 9/Clasificacion MLP XGBoost.ipynb
+  Sección   : MLPClassifier — hidden_layer_sizes, solver, max_iter; efecto del solver
+
+TODO 19: Tabla comparativa ordenada por AUC-ROC.
+  Referencia: Semana 8/extra clasificacion.ipynb
+              Laboratorio 2 Generalizacion/Ejemplo Ajuste Cancer.txt
+  Sección   : Comparación de modelos — tabla de métricas; pd.DataFrame de resultados
+
+TODO 20: Curva ROC del mejor y peor modelo; punto óptimo de Youden.
+  Referencia: Semana 8/extra clasificacion.ipynb
+              Laboratorio 3 Titanic/Laboratorio 3 Titanic/titanic_funcional.py
+  Sección   : roc_curve / auc de sklearn; criterio de Youden (sensibilidad + especificidad - 1)
+
+TODO 21: Matriz de confusión del mejor modelo (heatmap seaborn).
+  Referencia: Semana 8/extra clasificacion.ipynb
+              Laboratorio 3 Titanic/Laboratorio 3 Titanic/titanic_funcional.py
+  Sección   : confusion_matrix + sns.heatmap; interpretación de FP/FN en contexto clínico
+
+TODO 22: Validación cruzada 5-Fold con cross_val_score; F1 promedio ± std.
+  Referencia: Semana 8/cv kfold.ipynb
+              Laboratorio 2 Generalizacion/Ejemplo Ajuste Cancer.txt
+  Sección   : cross_val_score con StratifiedKFold; cálculo de media y desviación estándar
+
+================================================================================
+
+PARTE II — CLUSTERING: MALL CUSTOMERS
+---------------------------------------
+
+TODO 25: Codificar Genre con LabelEncoder; mapa de calor de correlaciones; skewness.
+  Referencia: Semana 9/Clustering (Wholesale).ipynb
+              Semana 8/eda + clasificacion.ipynb
+  Sección   : LabelEncoder de sklearn; df.skew(); sns.heatmap de correlaciones
+
+TODO 26: Outliers IQR sobre variables de clustering.
+  Referencia: Semana 8/eda + clasificacion.ipynb
+              Semana 8/eda + regresion.ipynb
+  Sección   : Método IQR para detección de outliers (mismo patrón que TODO 12)
+
+TODO 29: K-Means, AgglomerativeClustering y GMM con K_FINAL; dendrograma; BIC vs AIC.
+  Referencia: Semana 9/Clustering (Wholesale).ipynb
+  Sección   : KMeans — fit_predict, inercia;
+              AgglomerativeClustering — linkage ward/complete/average;
+              scipy.cluster.hierarchy.dendrogram para el dendrograma;
+              GaussianMixture — bic() y aic() para selección de componentes;
+              silhouette_score para comparar los tres algoritmos
+
+TODO 30: PCA (curva de varianza acumulada) + TSNE; 3 paneles comparativos.
+  Referencia: Semana 9/Clustering (Wholesale).ipynb
+              Semana 10/Procesaminto de Imagenes.ipynb  (uso de PCA)
+              Semana 11/MINIST y Simpson.ipynb           (uso de TSNE)
+  Sección   : PCA — explained_variance_ratio_, curva acumulada;
+              TSNE — n_components=2, perplexity; scatter coloreado por cluster
+
+COMPLETAR (celda extra sin número, Parte II, línea ~435):
+  Validación con _true_cluster — comparar etiquetas predichas contra las reales.
+  Referencia: Semana 9/Clustering (Wholesale).ipynb
+  Sección   : Evaluación final — adjusted_rand_score o accuracy tras alineación de etiquetas
+
+COMPLETAR (celda extra sin número, Parte II, línea ~456):
+  Perfilado de clusters — interpretación de medias por grupo; visualización radar/barras.
+  Referencia: Semana 9/Clustering (Wholesale).ipynb
+  Sección   : groupby('cluster').mean(); heatmap o spider chart de perfil de clientes
+
+================================================================================
+
+RESUMEN RÁPIDO DE ARCHIVOS MÁS USADOS
+---------------------------------------
+Semana 8/eda + clasificacion.ipynb        → EDA general, distribuciones, correlaciones, outliers
+Semana 8/cv kfold.ipynb                   → Validación cruzada K-Fold
+Semana 8/extra clasificacion.ipynb        → DT, RF, métricas, ROC, confusión
+Semana 9/Clasificacion MLP XGBoost.ipynb  → MLP, comparación de modelos
+Semana 9/Clustering (Wholesale).ipynb     → K-Means, Agglomerative, GMM, PCA, TSNE
+Laboratorio 1 Primeros Pasos/Ejemplo 1 - RF.txt       → RandomForestClassifier básico
+Laboratorio 1 Primeros Pasos/Ejemplo 3 - MLP.txt      → MLPClassifier básico
+Laboratorio 1 Primeros Pasos/Ejemplo 4 - DNN.txt      → Arquitecturas profundas MLP
+Laboratorio 2 Generalizacion/Ejemplo Ajuste Cancer.txt → Generalización, cross-validation
+Laboratorio 3 y 4/Clasificadores y Regresores.txt      → DT, comparación clasificadores
+Laboratorio 3 y 4/Graficar DT.txt                      → plot_tree visualización
+Laboratorio 3 y 4/Graficar RF.txt                      → importancia de variables RF
+Laboratorio 3 Titanic/titanic_funcional.py              → Pipeline completo, ROC, confusión
+================================================================================
